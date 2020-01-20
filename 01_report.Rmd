@@ -14,11 +14,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Importowanie bibliotek
 
 ```{r}
+library(jsonlite)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
-library(cowplot)
+#library(cowplot)
 library(magick)
 library(gapminder)
 library(plotly)
@@ -188,17 +189,33 @@ for (attr in list(c("cfin1", "cfin2", "chel1", "chel2"),
 
 
 
-### Animacja
+### Animacja - zbiór z próby o rozmiarze n=1000
 
-```{r animate, fig.show='animate', cache=FALSE}
-length <- data[sample(nrow(data), 1000), 1:2]
-length <- data.frame(sapply(length, as.numeric))
-p <- ggplot(data = length, aes(x = lp, y = length)) +
-  geom_point() +
-  geom_smooth()
-p <- ggplotly(p)
-p
+```{r}
+sizes <- toJSON(sampled_data$length)
+n  <- 1000
 ```
+
+<input type="range" min="1" max=`r n` value=cur class="slider" id="myRange">
+<img src="fish.gif" alt="ryba" width=10*sampled_data[1,2] id="ryba"/>
+<input id="current_idx" type="text" value="">
+
+<script>
+var slider = document.getElementById("myRange");
+sizes = (`r sizes`)
+
+slider.oninput = function() {
+  cur = slider.value; 
+  var s = document.getElementById('current_idx');
+  
+  size = sizes[cur-1]
+  
+  s.value = 'Indeks: ' + cur + '\t Rozmiar: ' + size;
+  
+  var ryba = document.getElementById('ryba');
+  ryba.width = size*10
+}
+</script>
 
 
 ### Podział zbioru na zbiory treningowy, validacyjny oraz testowy.
@@ -300,43 +317,38 @@ predictions_valid <- predict(linear_model_v2, valid_ds)
 eval_results(valid_ds$length, predictions_valid, valid_ds) 
 ```
 
-
 ### Elastic Net Regression
 
 ```{r}
-train_control <- trainControl(method = "repeatedcv",
-                              number = 10,
-                              repeats = 5,
-                              search = "random",
-                              verboseIter = TRUE)
-
-elastic_reg <- train(length ~ .,
-                     data = train_ds,
-                     method = "glmnet",
-                     preProcess = c("center", "scale"),
-                     tuneLength = 10,
-                     trControl = train_control)
-
-elastic_reg$bestTune
+#train_control <- trainControl(method = "repeatedcv",
+#                              number = 10,
+#                              repeats = 5,
+#                              search = "random",
+#                              verboseIter = TRUE)
+#elastic_reg <- train(length ~ .,
+#                     data = train_ds,
+#                     method = "glmnet",
+#                     preProcess = c("center", "scale"),
+#                     tuneLength = 10,
+#                     trControl = train_control)
+#elastic_reg$bestTune
 ```
 
 ```{r}
 # Train
-predictions_train <- predict(elastic_reg, train_ds)
-eval_results(train_ds$length, predictions_train, train_ds) 
-
+#predictions_train <- predict(elastic_reg, train_ds)
+#eval_results(train_ds$length, predictions_train, train_ds) 
 # Valid
-predictions_valid <- predict(elastic_reg, valid_ds)
-eval_results(valid_ds$length, predictions_valid, valid_ds) 
+#predictions_valid <- predict(elastic_reg, valid_ds)
+#eval_results(valid_ds$length, predictions_valid, valid_ds) 
 ```
 ```{r}
-library(mgcv)
-generalized_lm <- glm(length ~ ., data = train_ds)
-
+#library(mgcv)
+#generalized_lm <- glm(length ~ ., data = train_ds)
 ```
 
 ```{r}
-predictions_train <- predict(generalized_lm, train_ds)
-eval_results(train_ds$length, predictions_train, train_ds) 
-```
+#predictions_train <- predict(generalized_lm, train_ds)
+#eval_results(train_ds$length, predictions_train, train_ds) 
 
+```
