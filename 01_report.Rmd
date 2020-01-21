@@ -1,15 +1,27 @@
 ---
-title: "EMD proj 01 raport"
-author: "Bartosz Nawrotek"
+title: "EMD - projekt z analizy danych"
+author: "Bartosz Nawrotek, Marcin Leśnierowski"
 date: "1/2/2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
+options(warn=-1)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Wstępne przetwarzanie
+[Biblioteki](#importowanie-bibliotek)  
+[Wczytywanie danych](#wczytywanie-danych)  
+[Wstępne przetwarzanie](#wstępne-przetwarzanie)  
+[Rozmiar zbioru oraz podstawowe statystyki](#rozmiar-zbioru-oraz-podstawowe-statystyki)  
+[Szczegółowa analiza atrybutów](#szczególowa-analiza-atrybutów)  
+[Analiza szeregów czasowych](#analiza-szeregów-czasowych)  
+[Badanie korelacji atrybutów](badanie-korelacji-atrybutów)  
+[Animacja](animacja)  
+[Podział zbioru na zbiory treningowy, walidacyjny oraz testowy](#podział-zbioru-na-zbiory-treningowy-validacyjny-oraz-testowy)  
+[Pomiar metryk](#pomiar-metryk)  
+[Skalowanie wartości atrybutów](skalowanie-wartosci-atrybuóow)  
+[Regresja modelem liniowym](#regresja-modelem-liniowym)  
 
 ### Importowanie bibliotek
 
@@ -19,7 +31,6 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
-#library(cowplot)
 library(magick)
 library(gapminder)
 library(plotly)
@@ -122,7 +133,7 @@ Warto zwrócić uwagę na prawoskośność rozkładów dla atrybutów cfin1, cfi
 Pozostałe rozkłady są różnowartościowe, wielomodalne, o dużej entropii.
 Histogram dla atrybutu xmonth wskazuje na to, że większość pomiarów została dokonana w okresie letnim.
 
-#### Analiza szeregów czasowych
+### Analiza szeregów czasowych
 
 Analiza obejmuje badanie autokorelacji atrybutu length, aby potwierdzić lub wykluczyć jego okresowość. W celu utworzenia wykresów została wykorzystana funkcja z
 https://rh8liuqy.github.io/ACF_PACF_by_ggplot2.html
@@ -136,8 +147,6 @@ ggplot.corr(data %>% select("length"), large.sample.size = TRUE, horizontal = TR
 
 ```
 
-
-TODO Comments
 
 ### Badanie korelacji atrybutów
 
@@ -189,7 +198,7 @@ for (attr in list(c("cfin1", "cfin2", "chel1", "chel2"),
 
 
 
-### Animacja - zbiór z próby o rozmiarze n=1000
+### Animacja
 
 ```{r}
 sizes <- toJSON(sampled_data$length)
@@ -218,7 +227,7 @@ slider.oninput = function() {
 </script>
 
 
-### Podział zbioru na zbiory treningowy, validacyjny oraz testowy.
+### Podział zbioru na zbiory treningowy, validacyjny oraz testowy
 
 ```{r}
 idx <- createDataPartition(data$length, p=0.8, list=F)
@@ -315,40 +324,4 @@ eval_results(train_ds$length, predictions_train, train_ds)
 # Valid
 predictions_valid <- predict(linear_model_v2, valid_ds)
 eval_results(valid_ds$length, predictions_valid, valid_ds) 
-```
-
-### Elastic Net Regression
-
-```{r}
-#train_control <- trainControl(method = "repeatedcv",
-#                              number = 10,
-#                              repeats = 5,
-#                              search = "random",
-#                              verboseIter = TRUE)
-#elastic_reg <- train(length ~ .,
-#                     data = train_ds,
-#                     method = "glmnet",
-#                     preProcess = c("center", "scale"),
-#                     tuneLength = 10,
-#                     trControl = train_control)
-#elastic_reg$bestTune
-```
-
-```{r}
-# Train
-#predictions_train <- predict(elastic_reg, train_ds)
-#eval_results(train_ds$length, predictions_train, train_ds) 
-# Valid
-#predictions_valid <- predict(elastic_reg, valid_ds)
-#eval_results(valid_ds$length, predictions_valid, valid_ds) 
-```
-```{r}
-#library(mgcv)
-#generalized_lm <- glm(length ~ ., data = train_ds)
-```
-
-```{r}
-#predictions_train <- predict(generalized_lm, train_ds)
-#eval_results(train_ds$length, predictions_train, train_ds) 
-
 ```
